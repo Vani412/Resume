@@ -616,6 +616,8 @@ def display_analysis_panel(score_result, resume_text, domain, category=None):
         else:
             st.markdown('<div class="feedback-item strength-item">All domain keywords present!</div>', unsafe_allow_html=True)
         
+        col1, col2, col3 = st.columns(3)
+
         with col2:
             st.markdown("**🔧 Top 10 Hard Skills to Add:**")
             suggested_hard_skills = [
@@ -759,12 +761,13 @@ def display_pdf_preview(uploaded_file, temp_file_path):
             with open(temp_file_path, "rb") as f:
                 base64_pdf = base64.b64encode(f.read()).decode("utf-8")
 
-            # Proper iframe HTML
+            # Proper iframe HTML with full width/height
             pdf_display = f"""
                 <iframe src="data:application/pdf;base64,{base64_pdf}"
-                        width="100%" height="600" type="application/pdf"></iframe>  
+                        width="100%" height="800" style="border:none;"></iframe>
             """
-            components.html(pdf_display, height=620)
+            components.html(pdf_display, height=820, scrolling=True)
+
         else:
             st.markdown(f"""
                 #### 📄 {uploaded_file.name}
