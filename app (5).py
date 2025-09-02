@@ -749,11 +749,7 @@ def display_overall_heatmap(heatmap_data):
         </div>
         """, unsafe_allow_html=True)
 
-import streamlit.components.v1 as components
-import base64
-
 def display_pdf_preview(uploaded_file, temp_file_path):
-    """Display PDF preview in the right panel"""
     st.markdown("### 📄 Resume Preview", unsafe_allow_html=True)
 
     try:
@@ -761,12 +757,11 @@ def display_pdf_preview(uploaded_file, temp_file_path):
             with open(temp_file_path, "rb") as f:
                 base64_pdf = base64.b64encode(f.read()).decode("utf-8")
 
-            # Proper iframe HTML with full width/height
             pdf_display = f"""
-                <iframe src="data:application/pdf;base64,{base64_pdf}"
-                        width="100%" height="800" style="border:none;"></iframe>
+                <embed src="data:application/pdf;base64,{base64_pdf}" 
+                       width="100%" height="800" type="application/pdf">
             """
-            components.html(pdf_display, height=820, scrolling=True)
+            st.markdown(pdf_display, unsafe_allow_html=True)
 
         else:
             st.markdown(f"""
