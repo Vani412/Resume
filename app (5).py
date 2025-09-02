@@ -762,38 +762,40 @@ def display_pdf_preview(uploaded_file, temp_file_path):
             with open(temp_file_path, "rb") as f:
                 pdf_bytes = f.read()
 
-            # Always show a download button (reliable fallback)
+            # Always provide a download button
             st.download_button("📥 Download PDF", data=pdf_bytes, file_name=uploaded_file.name)
 
-            # Try to render pages to images with PyMuPDF (works across browsers)
+            # Try to render PDF pages as images using PyMuPDF
             try:
                 import fitz  # PyMuPDF
                 doc = fitz.open(stream=pdf_bytes, filetype="pdf")
 
-                # Show first 3 pages inline (tweak as you like)
-                num_pages = min(len(doc), 3)
-                for i in range(num_pages):
+                # Show all pages inline
+                for i in range(len(doc)):
                     page = doc.load_page(i)
-                    # 2x scale for decent clarity without huge size
-                    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+                    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)  # 2x scale
                     img_bytes = pix.tobytes("png")
-                    st.image(img_bytes, caption=f"Page {i+1} of {len(doc)}", use_column_width=True)
+                    st.image(
+                        img_bytes,
+                        caption=f"Page {i+1} of {len(doc)}",
+                        use_container_width=True
+                    )
                 doc.close()
 
             except Exception:
-                # If PyMuPDF isn't available or rendering fails, fall back to an embed
+                # If PyMuPDF fails, fallback to <embed>
                 base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
                 st.markdown(
-                    f'''
+                    f"""
                     <embed src="data:application/pdf;base64,{base64_pdf}"
                            type="application/pdf" width="100%" height="800">
-                    ''',
+                    """,
                     unsafe_allow_html=True
                 )
-                st.info("If the preview is still blank, use the download button above.")
+                st.info("If the preview is blocked, use the download button above.")
 
         else:
-            # DOCX preview note + download
+            # DOCX fallback
             st.markdown(f"#### 📄 {uploaded_file.name}", unsafe_allow_html=True)
             with open(temp_file_path, "rb") as f:
                 st.download_button("📥 Download DOCX", data=f.read(), file_name=uploaded_file.name)
@@ -801,6 +803,7 @@ def display_pdf_preview(uploaded_file, temp_file_path):
 
     except Exception as e:
         st.error(f"❌ Error displaying resume preview: {str(e)}")
+
 def get_score_color(score):
     """Get color based on score (0-10 scale)"""
     if score >= 8:
