@@ -761,7 +761,8 @@ def display_pdf_preview(uploaded_file, temp_file_path):
 
             # Proper iframe HTML
             pdf_display = f"""
-                data:application/pdf;base64,{base64_pdf}</iframe>
+                <iframe src="data:application/pdf;base64,{base64_pdf}"
+                        width="100%" height="600" type="application/pdf"></iframe>  
             """
             components.html(pdf_display, height=620)
         else:
