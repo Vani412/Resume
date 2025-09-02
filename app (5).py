@@ -753,7 +753,7 @@ def display_pdf_preview(uploaded_file, temp_file_path):
     st.markdown('<div class="section-title">📄 Resume Preview</div>', unsafe_allow_html=True)
     
     try:
-        if uploaded_file.type == "application/pdf":
+        if uploaded_file.name.lower().endswith(".pdf"):
             # Display PDF
             with open(temp_file_path, "rb") as f:
                 pdf_data = f.read()
