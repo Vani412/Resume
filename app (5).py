@@ -754,20 +754,12 @@ def display_pdf_preview(uploaded_file, temp_file_path):
     st.markdown("### 📄 Resume Preview", unsafe_allow_html=True)
 
     try:
-        st.write(f"File type detected: {uploaded_file.type}")
-        st.write(f"File name: {uploaded_file.name}")
-
         if uploaded_file.name.lower().endswith(".pdf"):
             with open(temp_file_path, "rb") as f:
-                pdf_data = f.read()
+                base64_pdf = base64.b64encode(f.read()).decode("utf-8")
 
-            if not pdf_data:
-                st.error("❌ PDF file is empty or could not be read.")
-                return
-
-            base64_pdf = base64.b64encode(pdf_data).decode("utf-8")
             pdf_display = f"""
-               data:application/pdf;base64,{base64_pdf}</iframe>
+                data:application/pdf;base64,{base64_pdf}</iframe>
             """
             components.html(pdf_display, height=620)
         else:
@@ -780,8 +772,6 @@ def display_pdf_preview(uploaded_file, temp_file_path):
 
     except Exception as e:
         st.error(f"❌ Error displaying resume preview: {str(e)}")
-
-
 
 def get_score_color(score):
     """Get color based on score (0-10 scale)"""
