@@ -748,6 +748,7 @@ def display_overall_heatmap(heatmap_data):
         """, unsafe_allow_html=True)
 
 import streamlit.components.v1 as components
+import base64
 
 def display_pdf_preview(uploaded_file, temp_file_path):
     """Display PDF preview in the right panel"""
@@ -758,6 +759,7 @@ def display_pdf_preview(uploaded_file, temp_file_path):
             with open(temp_file_path, "rb") as f:
                 base64_pdf = base64.b64encode(f.read()).decode("utf-8")
 
+            # Proper iframe HTML
             pdf_display = f"""
                 data:application/pdf;base64,{base64_pdf}</iframe>
             """
