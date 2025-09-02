@@ -749,31 +749,58 @@ def display_overall_heatmap(heatmap_data):
         </div>
         """, unsafe_allow_html=True)
 
+import base64
+import streamlit as st
+
 def display_pdf_preview(uploaded_file, temp_file_path):
+    """Display a robust resume preview that works even when Chrome blocks PDFs."""
     st.markdown("### 📄 Resume Preview", unsafe_allow_html=True)
 
     try:
         if uploaded_file.name.lower().endswith(".pdf"):
+            # Read the PDF bytes once
             with open(temp_file_path, "rb") as f:
-                base64_pdf = base64.b64encode(f.read()).decode("utf-8")
+                pdf_bytes = f.read()
 
-            pdf_display = f"""
-                <embed src="data:application/pdf;base64,{base64_pdf}" 
-                       width="100%" height="800" type="application/pdf">
-            """
-            st.markdown(pdf_display, unsafe_allow_html=True)
+            # Always show a download button (reliable fallback)
+            st.download_button("📥 Download PDF", data=pdf_bytes, file_name=uploaded_file.name)
+
+            # Try to render pages to images with PyMuPDF (works across browsers)
+            try:
+                import fitz  # PyMuPDF
+                doc = fitz.open(stream=pdf_bytes, filetype="pdf")
+
+                # Show first 3 pages inline (tweak as you like)
+                num_pages = min(len(doc), 3)
+                for i in range(num_pages):
+                    page = doc.load_page(i)
+                    # 2x scale for decent clarity without huge size
+                    pix = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+                    img_bytes = pix.tobytes("png")
+                    st.image(img_bytes, caption=f"Page {i+1} of {len(doc)}", use_column_width=True)
+                doc.close()
+
+            except Exception:
+                # If PyMuPDF isn't available or rendering fails, fall back to an embed
+                base64_pdf = base64.b64encode(pdf_bytes).decode("utf-8")
+                st.markdown(
+                    f'''
+                    <embed src="data:application/pdf;base64,{base64_pdf}"
+                           type="application/pdf" width="100%" height="800">
+                    ''',
+                    unsafe_allow_html=True
+                )
+                st.info("If the preview is still blank, use the download button above.")
 
         else:
-            st.markdown(f"""
-                #### 📄 {uploaded_file.name}
-                DOCX files cannot be previewed directly.
-                File size: {uploaded_file.size / 1024:.1f} KB  
-                ✅ Text extracted successfully
-            """, unsafe_allow_html=True)
+            # DOCX preview note + download
+            st.markdown(f"#### 📄 {uploaded_file.name}", unsafe_allow_html=True)
+            with open(temp_file_path, "rb") as f:
+                st.download_button("📥 Download DOCX", data=f.read(), file_name=uploaded_file.name)
+            st.caption("DOCX files can’t be previewed inline; download to view.")
 
     except Exception as e:
         st.error(f"❌ Error displaying resume preview: {str(e)}")
-
 def get_score_color(score):
     """Get color based on score (0-10 scale)"""
     if score >= 8:
