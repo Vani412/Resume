@@ -420,10 +420,8 @@ def show_resume_upload_and_analysis():
             left_col, right_col = st.columns([3, 2])
             
             with left_col:
-                st.markdown("<div style='height: 650px; overflow-y: auto; padding-right:10px;'>", unsafe_allow_html=True)
                 display_analysis_panel(score_result, resume_text, internal_domain, st.session_state.category)
-                st.markdown("</div>", unsafe_allow_html=True)
-
+            
             with right_col:
                 display_pdf_preview(uploaded_file, temp_file_path)
                 
@@ -751,54 +749,48 @@ def display_overall_heatmap(heatmap_data):
 
 def display_pdf_preview(uploaded_file, temp_file_path):
     """Display PDF preview in the right panel"""
-
+    
     st.markdown('<div class="section-title">📄 Resume Preview</div>', unsafe_allow_html=True)
-
+    
     try:
         if uploaded_file.type == "application/pdf":
             # Display PDF
             with open(temp_file_path, "rb") as f:
                 pdf_data = f.read()
-
+            
             # Encode PDF for display
             base64_pdf = base64.b64encode(pdf_data).decode('utf-8')
             pdf_display = f"""
-            <div style="background:white; border:1px solid #e2e8f0; border-radius:10px; 
-                        box-shadow:0 2px 6px rgba(0,0,0,0.08); height:650px; overflow:hidden;">
+            <div class="pdf-container">
                 <embed src="data:application/pdf;base64,{base64_pdf}" 
                        width="100%" height="100%" type="application/pdf">
             </div>
             """
             st.markdown(pdf_display, unsafe_allow_html=True)
-
+            
         else:
-            # For DOCX files, show styled info box
+            # For DOCX files, show file info
             st.markdown(f"""
-            <div style="background:white; border:1px solid #e2e8f0; border-radius:10px; 
-                        box-shadow:0 2px 6px rgba(0,0,0,0.08); height:650px; 
-                        display:flex; align-items:center; justify-content:center; text-align:center;">
-                <div>
+            <div class="pdf-container">
+                <div style="text-align: center; padding: 2rem;">
                     <h3>📄 {uploaded_file.name}</h3>
                     <p>DOCX files cannot be previewed directly.</p>
-                    <p><b>File size:</b> {uploaded_file.size / 1024:.1f} KB</p>
+                    <p>File size: {uploaded_file.size / 1024:.1f} KB</p>
                     <p>✅ Text extracted successfully</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
-
-    except Exception:
-        st.markdown("""
-        <div style="background:white; border:1px solid #e2e8f0; border-radius:10px; 
-                    box-shadow:0 2px 6px rgba(0,0,0,0.08); height:650px; 
-                    display:flex; align-items:center; justify-content:center; text-align:center; color:#666;">
-            <div>
+            
+    except Exception as e:
+        st.markdown(f"""
+        <div class="pdf-container">
+            <div style="text-align: center; padding: 2rem; color: #666;">
                 <h3>📄 File Preview</h3>
-                <p>⚠️ Unable to display preview</p>
-                <p>✅ Analysis completed successfully</p>
+                <p>Unable to display preview</p>
+                <p>Analysis completed successfully</p>
             </div>
         </div>
         """, unsafe_allow_html=True)
-
 
 def get_score_color(score):
     """Get color based on score (0-10 scale)"""
