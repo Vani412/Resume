@@ -747,6 +747,8 @@ def display_overall_heatmap(heatmap_data):
         </div>
         """, unsafe_allow_html=True)
 
+import streamlit.components.v1 as components
+
 def display_pdf_preview(uploaded_file, temp_file_path):
     """Display PDF preview in the right panel"""
     st.markdown("### 📄 Resume Preview", unsafe_allow_html=True)
@@ -767,7 +769,7 @@ def display_pdf_preview(uploaded_file, temp_file_path):
             pdf_display = f"""
                 data:application/pdf;base64,{base64_pdf}</iframe>
             """
-            st.components.v1.html(pdf_display, height=600)
+            components.html(pdf_display, height=620)
         else:
             st.markdown(f"""
                 #### 📄 {uploaded_file.name}
@@ -778,6 +780,7 @@ def display_pdf_preview(uploaded_file, temp_file_path):
 
     except Exception as e:
         st.error(f"❌ Error displaying resume preview: {str(e)}")
+
 
 
 def get_score_color(score):
