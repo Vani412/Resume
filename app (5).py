@@ -749,48 +749,36 @@ def display_overall_heatmap(heatmap_data):
 
 def display_pdf_preview(uploaded_file, temp_file_path):
     """Display PDF preview in the right panel"""
-    
-    st.markdown('<div class="section-title">📄 Resume Preview</div>', unsafe_allow_html=True)
-    
+    st.markdown("### 📄 Resume Preview", unsafe_allow_html=True)
+
     try:
+        st.write(f"File type detected: {uploaded_file.type}")
+        st.write(f"File name: {uploaded_file.name}")
+
         if uploaded_file.name.lower().endswith(".pdf"):
-            # Display PDF
             with open(temp_file_path, "rb") as f:
                 pdf_data = f.read()
-            
-            # Encode PDF for display
-            base64_pdf = base64.b64encode(pdf_data).decode('utf-8')
+
+            if not pdf_data:
+                st.error("❌ PDF file is empty or could not be read.")
+                return
+
+            base64_pdf = base64.b64encode(pdf_data).decode("utf-8")
             pdf_display = f"""
-            <div class="pdf-container">
-                <embed src="data:application/pdf;base64,{base64_pdf}" 
-                       width="100%" height="100%" type="application/pdf">
-            </div>
+                data:application/pdf;base64,{base64_pdf}</iframe>
             """
-            st.markdown(pdf_display, unsafe_allow_html=True)
-            
+            st.components.v1.html(pdf_display, height=600)
         else:
-            # For DOCX files, show file info
             st.markdown(f"""
-            <div class="pdf-container">
-                <div style="text-align: center; padding: 2rem;">
-                    <h3>📄 {uploaded_file.name}</h3>
-                    <p>DOCX files cannot be previewed directly.</p>
-                    <p>File size: {uploaded_file.size / 1024:.1f} KB</p>
-                    <p>✅ Text extracted successfully</p>
-                </div>
-            </div>
+                #### 📄 {uploaded_file.name}
+                DOCX files cannot be previewed directly.
+                File size: {uploaded_file.size / 1024:.1f} KB  
+                ✅ Text extracted successfully
             """, unsafe_allow_html=True)
-            
+
     except Exception as e:
-        st.markdown(f"""
-        <div class="pdf-container">
-            <div style="text-align: center; padding: 2rem; color: #666;">
-                <h3>📄 File Preview</h3>
-                <p>Unable to display preview</p>
-                <p>Analysis completed successfully</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.error(f"❌ Error displaying resume preview: {str(e)}")
+
 
 def get_score_color(score):
     """Get color based on score (0-10 scale)"""
